@@ -203,7 +203,7 @@ def GD(X, y, x0, learning_rate, T, lambda_reg,X_test=None,y_test=None):
         loss = Loss(theta, X, y, lambda_reg)
         Losses.append(loss)
         if X_test is not None:
-            loss_test = Loss(theta, X_test , y_test , lambda_reg )
+            loss_test = Loss(theta, X_test , y_test , 0)
             Losses_test.append(loss_test)
         FOs_list.append(FOs)
     return theta, Losses, Losses_test, FOs_list
@@ -243,7 +243,7 @@ def SVRG(X, y, x0, learning_rate, S, m, lambda_reg,X_test=None,y_test=None):
             acc= acc + xm
             Losses.append(Loss(acc/(j+1),X,y,lambda_reg))
             if X_test is not None:
-                loss_test = Loss(acc/(j+1), X_test , y_test , lambda_reg )
+                loss_test = Loss(acc/(j+1), X_test , y_test ,0)
                 Losses_test.append(loss_test)
             FOs_list.append(FOs)
         xs = acc/b
@@ -345,19 +345,21 @@ def SGD(X, y, theta_0, learning_rate, T, lambda_reg,X_test=None,y_test=None):
         nabla = (np.dot(xj,theta)-y[j]) * xj + lambda_reg * theta
         FOs += 1
         #gamma = 1 / (1000*(t+1) * lambda_reg )
-        gamma = learning_rate #* 1/np.sqrt(t+1)
+        gamma = learning_rate * 1/np.sqrt(t+1)
 
         theta = project(theta  - gamma * nabla)
 
-        loss = Loss( Avg, X , y , lambda_reg )
+        #loss = Loss( Avg, X , y , lambda_reg )
+        loss = Loss( theta, X , y , lambda_reg )
 
         Avg = Avg * (1 - 1/(t+1)) + theta / (t+1)
 
         Losses.append(loss)
 
         if X_test is not None:
-            loss_test = Loss( Avg, X_test , y_test , lambda_reg )
+            #loss_test = Loss( Avg, X_test , y_test , 0)
+            loss_test = Loss( theta, X_test , y_test , 0)
             Losses_test.append(loss_test)
         FOs_list.append(FOs)
         
-    return Avg, Losses, Losses_test, FOs_list
+    return theta, Losses, Losses_test, FOs_list
